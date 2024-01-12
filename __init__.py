@@ -75,7 +75,7 @@ class EnhancedSaveNode:
 
     CATEGORY = "image"
 
-    def upload(full_path, file_name, verbose, url, username, password):
+    def upload_image(self, full_path, file_name, verbose, url, username, password):
         if verbose:
             print(f"Uploading file {full_path}")
 
@@ -112,7 +112,7 @@ class EnhancedSaveNode:
 
 
             if upload:
-                threading.Thread(target=lambda: upload(full_path, file_name, verbose, url, username, password)).start()
+                threading.Thread(target=lambda: self.upload_image(full_path, file_name, verbose, url, username, password)).start()
                 # download_thread = threading.Thread(target=function_that_downloads, name="Downloader", args=some_args)
                 # download_thread.start()
                 # upload(full_path, file_name, verbose, url, username, password)
