@@ -33,6 +33,7 @@ import importlib
 
 import folder_paths
 import latent_preview
+import threading
 
 from datetime import datetime
 
@@ -74,6 +75,17 @@ class EnhancedSaveNode:
 
     CATEGORY = "image"
 
+    def upload(full_path, file_name, verbose, url, username, password):
+        if verbose:
+            print(f"Uploading file {full_path}")
+
+        from ftplib import FTP
+        with FTP(url, username, password) as ftp, open(full_path, 'rb') as file_binary:
+            ftp.storbinary(f'STOR {file_name}', file_binary)
+            
+        if verbose:
+            print("File upload success!")
+
     def save_images(self, images, username, password, url, upload, verbose, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
         filename_prefix += self.prefix_append
         
@@ -100,18 +112,13 @@ class EnhancedSaveNode:
 
 
             if upload:
-                if verbose:
-                    print(f"Uploading file {full_path}")
-
-                from ftplib import FTP
-                with FTP(url, username, password) as ftp, open(full_path, 'rb') as file_binary:
-                    ftp.storbinary(f'STOR {file_name}', file_binary)
-                    
-                if verbose:
-                    print("File upload success!")
+                threading.Thread(target=lambda: upload(full_path, file_name, verbose, url, username, password)).start()
+                # download_thread = threading.Thread(target=function_that_downloads, name="Downloader", args=some_args)
+                # download_thread.start()
+                # upload(full_path, file_name, verbose, url, username, password)
 
             elif verbose:
-                    print("Skipping file upload, disabled")
+                print("Skipping file upload, disabled")
 
             results.append({
                 "filename": file_name,
